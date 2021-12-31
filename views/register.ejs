@@ -1,0 +1,19 @@
+<%- include('./partials/header.ejs') %>
+<%- include('./partials/navbar.ejs') %>
+
+<div class="container w-72 flex items-end h-72">
+    <form action="/user/register" method="post">
+        <input type="text"class="border-gray-900 border-b-2 px-2 py-2 w-64 w-68" placeholder="Username" name="username">
+        <input type="text" class="border-gray-900 border-b-2 px-2 py-2 mt-2 w-64 w-68" placeholder="password" name="password">
+       <div class="d-flex justify-content-center my-4">
+        <button type="submit" class="font-bold text-white text-lg px-3 bg-gray-800 rounded-full">REGISTER</button>
+        <a href="/user/login" class="ml-3  text-sm mt-1 font-bold">Already Registered?</a>
+       </div>
+    </form>
+</div>
+
+
+
+<%- include('./partials/footer.ejs') %>
+
+

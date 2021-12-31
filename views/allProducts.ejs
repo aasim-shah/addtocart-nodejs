@@ -1,0 +1,51 @@
+<%- include('./partials/header.ejs') %>
+<%- include('./partials/navbar.ejs') %>
+
+<div class="container">
+  <div class="cart" id="totalcart"><%= session.cart ? session.cart.totalQty : '' %></div>
+    <table>
+        <% products.forEach( (item)=> { %>
+        <tr>
+            <td>Name : </td>
+            <td><%= item.name %></td>     
+            
+            <td>Price  : </td>
+            <td><%= item.price %></td>  
+            <td><button type="submit" data-item ='<%= JSON.stringify(item) %>' class="py-1 px-3 border cart  bg-gray-500"> cart</button> </td>
+        </tr>
+        <% }) %>
+    </table>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+
+<script>
+   let cartBtn = document.querySelectorAll('.cart')
+   cartBtn.forEach((btn) => {
+       btn.addEventListener('click' , (e) => {
+           let product = JSON.parse(btn.dataset.item)
+            updataCart(product)
+           console.log(product)
+       })
+   })
+
+
+   function updataCart(product){
+    axios.post('/user/get', product)
+  .then(function (response) {
+    console.log(response);
+    let totalcart  = document.getElementById('totalcart')
+    totalcart.innerText = response.data.totalQty
+
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+
+   }
+
+
+</script>
