@@ -22,7 +22,7 @@ router.use(session({
     resave: false,
     saveUninitialized: false,
     store : MongoStore.create({mongoUrl : 'mongodb://localhost:27017/ecomm' , collectionName : 'sessions'}),
-    cookie: { maxAge : 1000 * 60 * 24 }
+    cookie: { maxAge : 1000 * 60 * 60 * 24 }
   }))
 
 
@@ -78,7 +78,10 @@ res.locals.session = req.session
 
 router.get('/', user.home);
 router.get('/register', user.registered);
-router.post('/register', user.registering);
+router.post('/register', user.registering); 
+router.get('/cart' , async (req , res) => {
+  res.render('cartPage' , {d : req.session.cart})
+})
 router.get('/login', user.login_get);
 router.post('/get', async(req ,res) => {
   if(!req.session.cart){

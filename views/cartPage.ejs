@@ -1,0 +1,26 @@
+<%- include('./partials/header.ejs') %>
+<%- include('./partials/navbar.ejs') %>
+
+<div class="container">
+    <table>
+        <% for(let product of Object.values(session.cart.items)){ %>
+        <tr>
+            <td>name </td>
+            <td><%= product.item.name %></td>
+        </tr>
+        <tr>
+            <td>price </td>
+            <td><%= product.item.price %></td>
+        </tr>
+        <tr>
+            <td>Qty </td>
+            <td><%= product.Qty %></td>
+        </tr>
+        <% } %>
+    </table>
+</div>
+
+
+<%- include('./partials/footer.ejs') %>
+
+
