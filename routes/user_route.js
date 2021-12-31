@@ -8,9 +8,10 @@ import session from 'express-session';
 import  userModel from '../models/userModel.js';
 import  productModel from '../models/productsModel.js';
 import passportLocal from 'passport-local';
+import  googleAuth2 from 'passport-google-oauth2'
 import cookieParser from 'cookie-parser';
 const local = passportLocal.Strategy
-
+const GoogleStrategy = googleAuth2.Strategy
 
 const router = express.Router()
 router.use(urlencoded({extended : false}))
@@ -27,6 +28,38 @@ router.use(session({
 
 
 
+
+  passport.use(new GoogleStrategy({
+    clientID:     '356737417987-o0ijgbhfm1ukos78i0omdmqgtto1a7h4.apps.googleusercontent.com',
+    clientSecret: 'D-nXCyzoUBhmtU0DBwl14Y5f',
+    callbackURL: "http://localhost:8000/user/auth/google/callback",
+    passReqToCallback   : true
+  },
+   function(request, accessToken, refreshToken, profile, done) {
+    userModel.findOne({ google_id : profile.id },async function (err, user) {
+      if(user == null ){
+        const user  = await  userModel.create({google_id : profile.id})
+        return done( err ,  user)
+      }
+      return done(err, user);
+    });
+  }
+));
+
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope:
+      [ 'profile' ] }
+));
+
+router.get('/googleAuth/register' , (req  ,res)=> {
+  res.send('err')
+})
+
+router.get( '/auth/google/callback',
+    passport.authenticate( 'google', {failureRedirect: '/user/googleAuth/register' }) , user.google_auth);
+
+
   router.use(express.json())
 
 router.use(passport.initialize());
@@ -37,14 +70,14 @@ passport.use(new local(
       userModel.findOne({ username: username }, function (err, user) {
         if (err) { return done(err); }
         if (!user) { return done(null, false); }
-      
+      console.log(user.redirect)
         return done(null, user);
       });
     }
   ));
 
   passport.deserializeUser(function(id, done) {
-    User.findById(id, function(err, user) {
+    userModel.findById(id, function(err, user) {
       done(err, user);
     });
   });
@@ -75,45 +108,20 @@ res.locals.session = req.session
 })
 
 
+const isAdmin = (req ,res , next) => {
+  if (req.isAuthenticated()) {
+    return next();
+}
+res.redirect("/error");
+}
 
 router.get('/', user.home);
 router.get('/register', user.registered);
 router.post('/register', user.registering); 
-router.get('/cart' , async (req , res) => {
-  res.render('cartPage' , {d : req.session.cart})
-})
+router.get('/cart' , isAdmin, user.get_cart)
 router.get('/login', user.login_get);
-router.post('/get', async(req ,res) => {
-  if(!req.session.cart){
-    req.session.cart = {
-      items : {},
-      totalQty : 0,
-      totalPrice : 0
-    }
-  }
-  let cart = req.session.cart
-if(!cart.items[req.body._id]){
-cart.items[req.body._id] = {
-  item : req.body,
-  Qty : 1,
-}
-  cart.totalQty = cart.totalQty + 1
-
-}else{
-  cart.items[req.body._id].Qty = cart.items[req.body._id].Qty + 1
-  cart.totalQty = cart.totalQty + 1
-}
-
-res.send({totalQty: req.session.cart.totalQty})
-
-});
-
-router.get('/products' ,async (req , res) => {
-
-  const products = await productModel.find()
-  res.render('allProducts' , {products})
-
-})
+router.post('/addtocart', user.post_addtocart)
+router.get('/products' , user.get_allProducts) 
 router.post('/login', passport.authenticate('local', { failureRedirect: 'login' }),
 user.login_post
 );

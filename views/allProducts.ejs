@@ -34,7 +34,7 @@
 
 
    function updataCart(product){
-    axios.post('/user/get', product)
+    axios.post('/user/addtocart', product)
   .then(function (response) {
     console.log(response);
     let totalcart  = document.getElementById('totalcart')

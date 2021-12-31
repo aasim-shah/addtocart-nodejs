@@ -1,4 +1,5 @@
 import userModel from "../models/userModel.js";
+import productModel from "../models/productsModel.js";
 import  Jwt  from 'jsonwebtoken';
 import cookieParser from "cookie-parser";
 
@@ -39,6 +40,15 @@ class users {
       res.render('login')
     }
 
+
+
+    async  google_auth(req ,res) {
+        res.send('login')
+    }
+
+
+    
+
     async  dashboard_get(req ,res) {
       res.render('home')
     }
@@ -47,6 +57,42 @@ class users {
         res.clearCookie('jwt_Token')
         res.redirect('/user/login')
     }
-    
+
+    async get_allProducts (req , res) {
+
+        const products = await productModel.find()
+        res.render('allProducts' , {products})
+      
+      }
+
+      async get_cart(req , res)  {
+        res.render('cartPage' , {d : req.session.cart})
+      }
+
+    async post_addtocart(req ,res){
+        if(!req.session.cart){
+          req.session.cart = {
+            items : {},
+            totalQty : 0,
+            totalPrice : 0
+          }
+        }
+        let cart = req.session.cart
+      if(!cart.items[req.body._id]){
+      cart.items[req.body._id] = {
+        item : req.body,
+        Qty : 1,
+      }
+        cart.totalQty = cart.totalQty + 1
+      
+      }else{
+        cart.items[req.body._id].Qty = cart.items[req.body._id].Qty + 1
+        cart.totalQty = cart.totalQty + 1
+      }
+      
+      res.send({totalQty: req.session.cart.totalQty})
+      
+      };
+      
 }
 export default users

@@ -6,6 +6,7 @@ import db from "../db/db.js";
 const userSchema = mongoose.Schema({
     username : String,
     password : String,
+    google_id : String,
     tokens : [{
         token : String,
     }]
